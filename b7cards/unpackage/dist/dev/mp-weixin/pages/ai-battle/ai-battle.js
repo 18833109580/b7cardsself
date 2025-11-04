@@ -97,6 +97,16 @@ const _sfc_main = {
       this.currentPlayer = this.findSpade7Holder();
       this.isPlayerTurn = this.currentPlayer === "player";
       this.isAIPlayerTurn = !this.isPlayerTurn;
+      if (this.isAIPlayerTurn) {
+        setTimeout(() => {
+          this.aiPlay();
+        }, 1e3);
+      }
+      if (this.isAIPlayerTurn) {
+        setTimeout(() => {
+          this.aiPlay();
+        }, 1e3);
+      }
       this.gamePiles = {
         spades: { suit: "spades", count: 0, topCard: null, cards: [] },
         hearts: { suit: "hearts", count: 0, topCard: null, cards: [] },
@@ -175,6 +185,20 @@ const _sfc_main = {
     // 开始游戏
     startAIGame() {
       this.initGame();
+      this.gameStatus = "waitingFirstPlay";
+      if (this.currentPlayer === "player") {
+        common_vendor.index.showToast({
+          title: "轮到您先出牌（黑桃7）",
+          icon: "none",
+          duration: 2e3
+        });
+      } else {
+        common_vendor.index.showToast({
+          title: "轮到AI先出牌",
+          icon: "none",
+          duration: 2e3
+        });
+      }
     },
     // 重新开始游戏
     restartAIGame() {
@@ -257,12 +281,9 @@ const _sfc_main = {
       pile.topCard = this.selectedCard;
       this.playerCards = this.playerCards.filter((card) => card.id !== this.selectedCard.id);
       this.selectedCard = null;
-      if (this.playerCards.length === 0) {
-        this.endGame("player");
-        return;
-      }
       this.isPlayerTurn = false;
       this.isAIPlayerTurn = true;
+      this.currentPlayer = this.getNextPlayer();
       setTimeout(() => {
         this.aiPlay();
       }, 1e3);
@@ -311,12 +332,9 @@ const _sfc_main = {
       this.scores.player.penalty += cardToPenalty.value;
       this.deductedCards.push(cardToPenalty);
       this.playerCards = this.playerCards.filter((card) => card.id !== cardToPenalty.id);
-      if (this.playerCards.length === 0) {
-        this.endGame("player");
-        return;
-      }
       this.isPlayerTurn = false;
       this.isAIPlayerTurn = true;
+      this.currentPlayer = this.getNextPlayer();
       setTimeout(() => {
         this.aiPlay();
       }, 1e3);
@@ -358,12 +376,9 @@ const _sfc_main = {
       }
       this.scores.player.penalty += cardToPenalty.value;
       this.playerCards = this.playerCards.filter((card) => card.id !== cardToPenalty.id);
-      if (this.playerCards.length === 0) {
-        this.endGame("player");
-        return;
-      }
       this.isPlayerTurn = false;
       this.isAIPlayerTurn = true;
+      this.currentPlayer = this.getNextPlayer();
       setTimeout(() => {
         this.aiPlay();
       }, 1e3);
@@ -384,71 +399,97 @@ const _sfc_main = {
       currentAI.isThinking = true;
       setTimeout(() => {
         currentAI.isThinking = false;
-        const activeCards = this.getActiveCards(currentAI.handCards);
-        if (activeCards.length > 0) {
-          const suitsOrder = ["spades", "hearts", "clubs", "diamonds"];
-          const ranksOrder = ["K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2", "A"];
-          let cardToPlay = null;
-          for (const suit of suitsOrder) {
-            const suitCards = activeCards.filter((card) => card.suit === suit);
-            if (suitCards.length > 0) {
-              for (const rank of ranksOrder) {
-                const card = suitCards.find((c) => c.rank === rank);
-                if (card) {
-                  cardToPlay = card;
-                  break;
-                }
-              }
-              if (cardToPlay)
-                break;
+        let cardToPlay = null;
+        if (this.gameStatus === "waitingFirstPlay") {
+          const spade7 = currentAI.handCards.find((card) => card.suit === "spades" && card.rank === "7");
+          if (spade7) {
+            cardToPlay = spade7;
+            this.gameStatus = "playing";
+          } else {
+            cardToPlay = currentAI.handCards.find((card) => card.rank === "7");
+            if (cardToPlay) {
+              this.gameStatus = "playing";
             }
-          }
-          if (cardToPlay) {
-            const pile = this.gamePiles[cardToPlay.suit];
-            pile.cards.push({
-              card: cardToPlay,
-              playedBy: currentAI.name
-            });
-            pile.count++;
-            pile.topCard = cardToPlay;
-            currentAI.handCards = currentAI.handCards.filter((card) => card.id !== cardToPlay.id);
-            currentAI.cards--;
-            this.aiPlayCount++;
-            this.gameRounds++;
-            common_vendor.index.showToast({
-              title: `${currentAI.name} 出牌: ${cardToPlay.rank}${this.getSuitSymbol(cardToPlay.suit)}`,
-              icon: "none",
-              duration: 2e3
-            });
           }
         } else {
-          const suitsOrder = ["spades", "hearts", "clubs", "diamonds"];
-          const ranksOrder = ["K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2", "A"];
-          let cardToPenalty = null;
-          for (const suit of suitsOrder) {
-            const suitCards = currentAI.handCards.filter((card) => card.suit === suit);
-            if (suitCards.length > 0) {
-              for (const rank of ranksOrder) {
-                const card = suitCards.find((c) => c.rank === rank);
-                if (card) {
-                  cardToPenalty = card;
-                  break;
+          const activeCards = this.getActiveCards(currentAI.handCards);
+          if (activeCards.length > 0) {
+            const suitsOrder = ["spades", "hearts", "clubs", "diamonds"];
+            const ranksOrder = ["K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2", "A"];
+            for (const suit of suitsOrder) {
+              const suitCards = activeCards.filter((card) => card.suit === suit);
+              if (suitCards.length > 0) {
+                for (const rank of ranksOrder) {
+                  const card = suitCards.find((c) => c.rank === rank);
+                  if (card) {
+                    cardToPlay = card;
+                    break;
+                  }
                 }
+                if (cardToPlay)
+                  break;
               }
-              if (cardToPenalty)
-                break;
             }
           }
-          if (cardToPenalty) {
-            const aiKey = `ai${aiIndex + 1}`;
-            this.scores[aiKey].penalty += cardToPenalty.value;
-            currentAI.handCards = currentAI.handCards.filter((card) => card.id !== cardToPenalty.id);
-            currentAI.cards--;
+        }
+        if (cardToPlay) {
+          const pile = this.gamePiles[cardToPlay.suit];
+          pile.cards.push({
+            card: cardToPlay,
+            playedBy: currentAI.name
+          });
+          pile.count++;
+          pile.topCard = cardToPlay;
+          currentAI.handCards = currentAI.handCards.filter((card) => card.id !== cardToPlay.id);
+          currentAI.cards--;
+          this.aiPlayCount++;
+          this.gameRounds++;
+          common_vendor.index.showToast({
+            title: `${currentAI.name} 出牌: ${cardToPlay.rank}${this.getSuitSymbol(cardToPlay.suit)}`,
+            icon: "none",
+            duration: 2e3
+          });
+        } else {
+          const activeCards = this.getActiveCards(currentAI.handCards);
+          if (activeCards.length === 0) {
             common_vendor.index.showToast({
-              title: `${currentAI.name} 扣牌: ${cardToPenalty.rank}${this.getSuitSymbol(cardToPenalty.suit)} (${cardToPenalty.value}分)`,
+              title: `${currentAI.name} 选择过牌（没有活牌）`,
               icon: "none",
               duration: 2e3
             });
+            const aiKey = `ai${aiIndex + 1}`;
+            this.scores[aiKey].passCount = (this.scores[aiKey].passCount || 0) + 1;
+            this.nextTurn();
+            return;
+          } else {
+            const suitsOrder = ["spades", "hearts", "clubs", "diamonds"];
+            const ranksOrder = ["K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2", "A"];
+            let cardToPenalty = null;
+            for (const suit of suitsOrder) {
+              const suitCards = currentAI.handCards.filter((card) => card.suit === suit);
+              if (suitCards.length > 0) {
+                for (const rank of ranksOrder) {
+                  const card = suitCards.find((c) => c.rank === rank);
+                  if (card) {
+                    cardToPenalty = card;
+                    break;
+                  }
+                }
+                if (cardToPenalty)
+                  break;
+              }
+            }
+            if (cardToPenalty) {
+              const aiKey = `ai${aiIndex + 1}`;
+              this.scores[aiKey].penalty += cardToPenalty.value;
+              currentAI.handCards = currentAI.handCards.filter((card) => card.id !== cardToPenalty.id);
+              currentAI.cards--;
+              common_vendor.index.showToast({
+                title: `${currentAI.name} 扣牌: ${cardToPenalty.rank}${this.getSuitSymbol(cardToPenalty.suit)} (${cardToPenalty.value}分)`,
+                icon: "none",
+                duration: 2e3
+              });
+            }
           }
         }
         if (currentAI.handCards.length === 0) {
@@ -457,23 +498,18 @@ const _sfc_main = {
           this.checkGameEnd();
           return;
         }
+        this.checkGameEnd();
         this.nextTurn();
       }, 1500);
     },
     // 获取当前应该出牌的AI索引
     getCurrentAIIndex() {
-      if (!this.currentPlayer || !this.currentPlayer.startsWith("ai")) {
-        for (let i = 0; i < this.aiPlayers.length; i++) {
-          if (this.aiPlayers[i].status === "playing") {
-            return i;
-          }
+      if (this.currentPlayer && this.currentPlayer.startsWith("ai")) {
+        const aiNumber = parseInt(this.currentPlayer.replace("ai", ""));
+        const index = aiNumber - 1;
+        if (index >= 0 && index < this.aiPlayers.length && this.aiPlayers[index].status === "playing") {
+          return index;
         }
-        return -1;
-      }
-      const aiNumber = parseInt(this.currentPlayer.replace("ai", ""));
-      const index = aiNumber - 1;
-      if (index >= 0 && index < this.aiPlayers.length && this.aiPlayers[index].status === "playing") {
-        return index;
       }
       for (let i = 0; i < this.aiPlayers.length; i++) {
         if (this.aiPlayers[i].status === "playing") {
@@ -492,6 +528,10 @@ const _sfc_main = {
       } else {
         this.isPlayerTurn = false;
         this.isAIPlayerTurn = true;
+        const aiIndex = this.getCurrentAIIndex();
+        if (aiIndex !== -1) {
+          this.currentPlayer = `ai${aiIndex + 1}`;
+        }
         setTimeout(() => {
           this.aiPlay();
         }, 1e3);
@@ -521,6 +561,9 @@ const _sfc_main = {
     },
     // 游戏结束
     endGame(lastPlayer) {
+      if (this.gameStatus !== "finished") {
+        return;
+      }
       this.gameStatus = "ended";
       this.calculateScores();
       let resultMessage = "游戏结束！";
@@ -530,6 +573,13 @@ const _sfc_main = {
         resultMessage += `${ai.name}得分: ${this.scores[`ai${index + 1}`].total}
 `;
       });
+      if (lastPlayer) {
+        const winnerName = lastPlayer === "player" ? "玩家" : this.aiPlayers[parseInt(lastPlayer.replace("ai", "")) - 1].name;
+        resultMessage += `
+获胜者: ${winnerName}`;
+      } else {
+        resultMessage += "游戏平局！";
+      }
       common_vendor.index.showModal({
         title: "游戏结果",
         content: resultMessage,

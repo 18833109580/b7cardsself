@@ -11,8 +11,10 @@ const _sfc_main = {
   methods: {
     // 与AI对战
     startAIGame() {
-      common_vendor.index.navigateTo({
-        url: "/pages/ai-battle/ai-battle"
+      common_vendor.index.showToast({
+        title: "AI对战功能开发中",
+        icon: "none",
+        duration: 2e3
       });
     },
     // 局域网模式
