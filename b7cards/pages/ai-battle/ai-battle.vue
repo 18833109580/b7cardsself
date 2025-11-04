@@ -13,7 +13,7 @@
     </view>
     
     <!-- AI玩家状态 -->
-    <view class="ai-players-section">
+    <view class="ai-players-section" v-if="gameStatus !== 'waiting'">
       <h3>AI玩家状态</h3>
       <view class="ai-players-container">
         <view class="ai-player" v-for="(ai, index) in aiPlayers" :key="index">
@@ -47,36 +47,36 @@
     </view>
     
     <!-- 出牌权显示 -->
-    <view class="turn-section" v-if="gameStatus === 'playing' && currentPlayer">
-      <view :class="['turn-indicator', isYourTurn ? 'your-turn' : isAIPlayerTurn ? 'ai-turn' : 'other-turn']">
-        <text v-if="isYourTurn" class="turn-text">🎮 轮到您出牌</text>
+    <view class="turn-section" v-if="gameStatus !== 'waiting' && currentPlayer">
+      <view :class="['turn-indicator', isPlayerTurn ? 'your-turn' : isAIPlayerTurn ? 'ai-turn' : 'other-turn']">
+        <text v-if="isPlayerTurn" class="turn-text">🎮 轮到您出牌</text>
         <text v-else-if="isAIPlayerTurn" class="turn-text">🤖 轮到AI玩家 {{ currentPlayer }} 思考中...</text>
         <text v-else class="turn-text">⏳ 轮到玩家 {{ currentPlayer }} 出牌</text>
       </view>
     </view>
     
-    <!-- 牌堆显示 - 只在有牌时显示 -->
-    <view class="piles-section" v-if="gamePiles">
+    <!-- 牌堆显示 - 只在游戏开始后有牌时显示 -->
+    <view class="piles-section" v-if="gameStatus !== 'waiting' && gamePiles">
       <h3>牌堆</h3>
       <view class="piles-container">
-        <view v-for="(pile, suit) in gamePiles" :key="suit">
+        <view v-for="suit in orderedSuits" :key="suit" class="pile-column">
           <!-- 只在有牌时显示牌堆 -->
-          <view v-if="pile.cards && pile.cards.length > 0" class="pile-item">
+          <view v-if="gamePiles[suit] && gamePiles[suit].cards && gamePiles[suit].cards.length > 0" class="pile-item">
             <view class="pile">
               <!-- 牌堆标题 - 显示花色和牌数 -->
               <view class="pile-header">
                 <text class="pile-suit">{{ getSuitSymbol(suit) }}</text>
-                <text class="pile-count">{{ pile.count }}张</text>
+                <text class="pile-count">{{ gamePiles[suit].count }}张</text>
               </view>
               
-              <!-- 牌堆序列 - 横向展开，每张牌完整显示 -->
+              <!-- 牌堆序列 - 纵向展开，每张牌完整显示 -->
               <view class="pile-cards">
                 <view class="pile-sequence">
                   <view 
-                    v-for="(entry, index) in pile.cards" 
+                    v-for="(entry, index) in getPileCardsSorted(suit)" 
                     :key="index"
-                    :class="['pile-card', 'card-' + entry.card.suit, entry.card.rank === '7' ? 'seven-card' : '']"
-                    :style="{ marginLeft: index > 0 ? '-20px' : '0' }"
+                    :class="['pile-card', 'card', 'card-' + entry.card.suit, entry.card.rank === '7' ? 'seven-card' : '']"
+                    :style="{ marginTop: index > 0 ? '-40px' : '0' }"
                   >
                     <text class="card-rank">{{ entry.card.rank }}</text>
                     <text class="card-suit">{{ getSuitSymbol(entry.card.suit) }}</text>
@@ -84,8 +84,8 @@
                 </view>
               </view>
               
-              <text v-if="pile.playedBy" class="pile-player">
-                最后出牌: {{ pile.playedBy }}
+              <text v-if="gamePiles[suit].playedBy" class="pile-player">
+                最后出牌: {{ gamePiles[suit].playedBy }}
               </text>
             </view>
           </view>
@@ -104,7 +104,7 @@
     </view>
     
     <!-- 玩家手牌 -->
-    <view class="cards-section" v-if="playerCards.length > 0">
+    <view class="cards-section" v-if="gameStatus !== 'waiting' && playerCards.length > 0">
       <h3>你的手牌 ({{ playerCards.length }}张)</h3>
       
       <!-- 选中的牌 -->
@@ -124,7 +124,7 @@
         </view>
         
         <!-- Pass按钮 -->
-        <view class="pass-section" v-if="isYourTurn && gameStatus === 'playing'">
+        <view class="pass-section" v-if="isPlayerTurn && gameStatus === 'playing'">
           <button @click="passTurn" class="pass-btn" :disabled="!canPass">
             Pass
           </button>
@@ -222,14 +222,13 @@ export default {
 			],
 			canbutton: true, // 控制按钮状态
 			canPass: false, // 是否可以Pass
-			passHint: '' // Pass提示
+      passHint: '', // Pass提示
+      orderedSuits: ['spades', 'hearts', 'clubs', 'diamonds']
 		};
 	},
-	methods: {
-
-	},
   onLoad(){
-    this.initGame();
+    // 页面加载时只初始化基本状态，不进行发牌
+    this.resetGameState();
   },
   methods: {
     // 返回菜单
@@ -237,6 +236,41 @@ export default {
       uni.navigateTo({
         url: '/pages/menu/menu'
       });
+    },
+    
+    // 重置游戏状态（页面加载时调用）
+    resetGameState() {
+      // 清空所有游戏数据
+      this.playerCards = [];
+      this.selectedCard = null;
+      this.gameStatus = 'waiting';
+      this.gamePiles = {
+        hearts: { suit: 'hearts', count: 0, topCard: null, cards: [] },
+        spades: { suit: 'spades', count: 0, topCard: null, cards: [] },
+        diamonds: { suit: 'diamonds', count: 0, topCard: null, cards: [] },
+        clubs: { suit: 'clubs', count: 0, topCard: null, cards: [] }
+      };
+      this.deductedCards = [];
+      this.gameRounds = 0;
+      this.aiPlayCount = 0;
+      this.remainingAIPlayers = 3;
+      this.aiThinkTime = 0;
+      this.currentPlayer = null;
+      this.isPlayerTurn = false;
+      this.isAIPlayerTurn = false;
+      this.scores = {
+        player: { total: 0, penalty: 0, status: 'waiting' },
+        ai1: { total: 0, penalty: 0, status: 'waiting' },
+        ai2: { total: 0, penalty: 0, status: 'waiting' },
+        ai3: { total: 0, penalty: 0, status: 'waiting' }
+      };
+      this.aiPlayers = [
+        { name: 'AI玩家1', cards: 0, isThinking: false, level: 3, handCards: [], status: 'waiting' },
+        { name: 'AI玩家2', cards: 0, isThinking: false, level: 2, handCards: [], status: 'waiting' },
+        { name: 'AI玩家3', cards: 0, isThinking: false, level: 1, handCards: [], status: 'waiting' }
+      ];
+      this.canPass = false;
+      this.passHint = '等待游戏开始';
     },
     
     // 初始化游戏
@@ -272,9 +306,9 @@ export default {
       // 发牌（每人13张）
       this.playerCards = deck.slice(0, 13).sort(this.sortCards);
       this.aiPlayers = [
-        { name: 'AI玩家1', cards: 13, isThinking: false, level: 3, handCards: deck.slice(13, 26).sort(this.sortCards) },
-        { name: 'AI玩家2', cards: 13, isThinking: false, level: 2, handCards: deck.slice(26, 39).sort(this.sortCards) },
-        { name: 'AI玩家3', cards: 13, isThinking: false, level: 1, handCards: deck.slice(39, 52).sort(this.sortCards) }
+        { name: 'AI玩家1', cards: 13, isThinking: false, level: 3, handCards: deck.slice(13, 26).sort(this.sortCards), status: 'playing' },
+        { name: 'AI玩家2', cards: 13, isThinking: false, level: 2, handCards: deck.slice(26, 39).sort(this.sortCards), status: 'playing' },
+        { name: 'AI玩家3', cards: 13, isThinking: false, level: 1, handCards: deck.slice(39, 52).sort(this.sortCards), status: 'playing' }
       ];
       
       // 初始化游戏状态
@@ -287,14 +321,7 @@ export default {
       if (this.isAIPlayerTurn) {
         setTimeout(() => {
           this.aiPlay();
-        }, 1000);
-      }
-      
-      // 如果是AI先出牌，直接开始AI回合
-      if (this.isAIPlayerTurn) {
-        setTimeout(() => {
-          this.aiPlay();
-        }, 1000);
+        }, 300);
       }
       
       // 初始化牌堆
@@ -329,10 +356,11 @@ export default {
       return values[rank] || 0;
     },
     
-    // 排序牌组（按花色和大小）
+    // 排序牌组（按花色并按 A→K 升序）
     sortCards(a, b) {
       const suitOrder = { 'spades': 0, 'hearts': 1, 'clubs': 2, 'diamonds': 3 };
-      const rankOrder = { 'K': 0, 'Q': 1, 'J': 2, '10': 3, '9': 4, '8': 5, '7': 6, '6': 7, '5': 8, '4': 9, '3': 10, '2': 11, 'A': 12 };
+      const asc = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+      const rankOrder = asc.reduce((acc, r, i) => { acc[r] = i; return acc; }, {});
       
       if (suitOrder[a.suit] !== suitOrder[b.suit]) {
         return suitOrder[a.suit] - suitOrder[b.suit];
@@ -359,19 +387,27 @@ export default {
     
     // 检查是否为活牌
     isActiveCard(card) {
-      // 7永远是活牌
-      if (card.rank === '7') return true;
-      
-      const pile = this.gamePiles[card.suit];
-      if (!pile.topCard) return false;
-      
-      // 检查是否与同花色牌相邻
-      const currentRank = pile.topCard.rank;
       const rankOrder = ['K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2', 'A'];
-      const currentIndex = rankOrder.indexOf(currentRank);
-      const cardIndex = rankOrder.indexOf(card.rank);
+      const pile = this.gamePiles[card.suit];
       
-      return Math.abs(currentIndex - cardIndex) === 1;
+      // 该花色还未出牌时，仅 7 为活牌
+      if (!pile || !pile.cards || pile.cards.length === 0) {
+        return card.rank === '7';
+      }
+      
+      // 计算该花色当前已出序列两端（最小与最大索引）
+      const playedIndices = pile.cards
+        .map(entry => rankOrder.indexOf(entry.card.rank))
+        .filter(idx => idx >= 0);
+      if (playedIndices.length === 0) {
+        return card.rank === '7';
+      }
+      const minIdx = Math.min(...playedIndices);
+      const maxIdx = Math.max(...playedIndices);
+      const cardIdx = rankOrder.indexOf(card.rank);
+      
+      // 活牌：紧邻当前序列任一端（向上或向下扩张）
+      return cardIdx === minIdx - 1 || cardIdx === maxIdx + 1;
     },
     
     // 获取活牌列表
@@ -381,25 +417,39 @@ export default {
     
     // 开始游戏
     startAIGame() {
+      // 禁用开始按钮，防止重复点击
+      this.canbutton = false;
+      
+      // 执行发牌和游戏初始化
       this.initGame();
       
-      // 确保游戏状态正确设置
-      this.gameStatus = 'waitingFirstPlay';
+      // 显示游戏开始提示
+      uni.showToast({
+        title: '游戏开始！正在发牌...',
+        icon: 'success',
+        duration: 2000
+      });
       
-      // 显示当前玩家信息
-      if (this.currentPlayer === 'player') {
-        uni.showToast({
-          title: '轮到您先出牌（黑桃7）',
-          icon: 'none',
-          duration: 2000
-        });
-      } else {
-        uni.showToast({
-          title: '轮到AI先出牌',
-          icon: 'none',
-          duration: 2000
-        });
-      }
+      // 延迟显示当前玩家信息，让用户有时间看到发牌过程
+      setTimeout(() => {
+        // 确保游戏状态正确设置
+        this.gameStatus = 'waitingFirstPlay';
+        
+        // 显示当前玩家信息
+        if (this.currentPlayer === 'player') {
+          uni.showToast({
+            title: '轮到您先出牌（黑桃7）',
+            icon: 'none',
+            duration: 2000
+          });
+        } else {
+          uni.showToast({
+            title: '轮到AI先出牌',
+            icon: 'none',
+            duration: 2000
+          });
+        }
+      }, 800);
     },
     
     // 重新开始游戏
@@ -415,6 +465,15 @@ export default {
         case 'diamonds': return '♦';
         default: return suit;
       }
+    },
+
+    // 获取按 A→K 排序后的牌堆序列
+    getPileCardsSorted(suit) {
+      const asc = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+      const order = asc.reduce((acc, r, i) => { acc[r] = i; return acc; }, {});
+      const pile = this.gamePiles[suit];
+      if (!pile || !pile.cards) return [];
+      return [...pile.cards].sort((e1, e2) => order[e1.card.rank] - order[e2.card.rank]);
     },
     
     // 选择单张牌
@@ -504,7 +563,7 @@ export default {
       // AI思考
       setTimeout(() => {
         this.aiPlay();
-      }, 1000);
+      }, 500);
       
       uni.showToast({
         title: '出牌成功',
@@ -572,7 +631,7 @@ export default {
       // AI思考
       setTimeout(() => {
         this.aiPlay();
-      }, 1000);
+      }, 500);
       
       uni.showToast({
         title: `扣牌成功: ${cardToPenalty.rank}${this.getSuitSymbol(cardToPenalty.suit)} (${cardToPenalty.value}分)`,
@@ -632,7 +691,7 @@ export default {
       // AI思考
       setTimeout(() => {
         this.aiPlay();
-      }, 1000);
+      }, 500);
       
       uni.showToast({
         title: `扣牌成功: ${cardToPenalty.rank}${this.getSuitSymbol(cardToPenalty.suit)} (${cardToPenalty.value}分)`,
@@ -643,14 +702,35 @@ export default {
     
     // AI出牌逻辑
     aiPlay() {
+      console.log('aiPlay called, isAIPlayerTurn:', this.isAIPlayerTurn, 'currentPlayer:', this.currentPlayer);
+      
+      // 检查游戏状态
+      if (this.gameStatus === 'ended' || this.gameStatus === 'finished') {
+        console.log('Game already ended, stopping AI play');
+        return;
+      }
+      
       // 找到当前应该出牌的AI
       const aiIndex = this.getCurrentAIIndex();
+      console.log('Found AI index:', aiIndex);
+      
       if (aiIndex === -1) {
-        this.endGame();
+        console.log('No active AI found, checking game end');
+        this.checkGameEnd();
         return;
       }
       
       const currentAI = this.aiPlayers[aiIndex];
+      console.log('Current AI:', currentAI.name, 'hand cards:', currentAI.handCards.length);
+      
+      // 检查AI是否还有手牌
+      if (currentAI.handCards.length === 0) {
+        console.log('AI has no cards left, marking as finished');
+        currentAI.status = 'finished';
+        this.remainingAIPlayers--;
+        this.checkGameEnd();
+        return;
+      }
       
       // 模拟AI思考
       currentAI.isThinking = true;
@@ -662,20 +742,26 @@ export default {
         
         // 首出特殊处理：必须出黑桃7
         if (this.gameStatus === 'waitingFirstPlay') {
+          console.log('First play mode, looking for spade 7');
           const spade7 = currentAI.handCards.find(card => card.suit === 'spades' && card.rank === '7');
           if (spade7) {
             cardToPlay = spade7;
             this.gameStatus = 'playing';
+            console.log('Found spade 7, setting game status to playing');
           } else {
             // 如果没有黑桃7，选择其他7
             cardToPlay = currentAI.handCards.find(card => card.rank === '7');
             if (cardToPlay) {
               this.gameStatus = 'playing';
+              console.log('Found other 7, setting game status to playing');
+            } else {
+              console.log('No 7 found in AI hand, cannot make first play');
             }
           }
         } else {
           // 正常出牌：获取活牌
           const activeCards = this.getActiveCards(currentAI.handCards);
+          console.log('Active cards found:', activeCards.length);
           
           if (activeCards.length > 0) {
             // 按规则出牌（黑桃→红桃→梅花→方片，K→A）
@@ -689,16 +775,21 @@ export default {
                   const card = suitCards.find(c => c.rank === rank);
                   if (card) {
                     cardToPlay = card;
+                    console.log('Found card to play:', card.rank, card.suit);
                     break;
                   }
                 }
                 if (cardToPlay) break;
               }
             }
+          } else {
+            console.log('No active cards available');
           }
         }
         
         if (cardToPlay) {
+          console.log('Playing card:', cardToPlay.rank, cardToPlay.suit);
+          
           // 添加到牌堆
           const pile = this.gamePiles[cardToPlay.suit];
           pile.cards.push({
@@ -710,7 +801,7 @@ export default {
           
           // 从AI手牌中移除
           currentAI.handCards = currentAI.handCards.filter(card => card.id !== cardToPlay.id);
-          currentAI.cards--;
+          currentAI.cards = currentAI.handCards.length;
           
           // 更新统计
           this.aiPlayCount++;
@@ -721,12 +812,30 @@ export default {
             icon: 'none',
             duration: 2000
           });
+          
+          // 检查AI是否出完牌
+          if (currentAI.handCards.length === 0) {
+            console.log('AI finished all cards');
+            currentAI.status = 'finished';
+            this.remainingAIPlayers--;
+            this.checkGameEnd();
+            return;
+          }
+          
+          // 检查游戏是否结束
+          this.checkGameEnd();
+          
+          // 切换到下一个回合
+          this.nextTurn();
+          
         } else {
           // 检查是否有活牌可以出
           const activeCards = this.getActiveCards(currentAI.handCards);
+          console.log('No card selected, checking active cards:', activeCards.length);
           
           if (activeCards.length === 0) {
             // 没有活牌，AI选择过牌
+            console.log('No active cards, AI will pass');
             uni.showToast({
               title: `${currentAI.name} 选择过牌（没有活牌）`,
               icon: 'none',
@@ -742,6 +851,7 @@ export default {
             return;
           } else {
             // 有活牌但AI逻辑没有找到，强制扣牌
+            console.log('Has active cards but no card selected, forcing penalty');
             const suitsOrder = ['spades', 'hearts', 'clubs', 'diamonds'];
             const ranksOrder = ['K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2', 'A'];
             
@@ -762,42 +872,57 @@ export default {
             }
             
             if (cardToPenalty) {
+              console.log('Penalty card selected:', cardToPenalty.rank, cardToPenalty.suit);
+              
               // 记录扣牌
               const aiKey = `ai${aiIndex + 1}`;
               this.scores[aiKey].penalty += cardToPenalty.value;
               
               // 从AI手牌中移除
               currentAI.handCards = currentAI.handCards.filter(card => card.id !== cardToPenalty.id);
-              currentAI.cards--;
+              currentAI.cards = currentAI.handCards.length;
               
               uni.showToast({
                 title: `${currentAI.name} 扣牌: ${cardToPenalty.rank}${this.getSuitSymbol(cardToPenalty.suit)} (${cardToPenalty.value}分)`,
                 icon: 'none',
                 duration: 2000
               });
+              
+              // 检查AI是否出完牌
+              if (currentAI.handCards.length === 0) {
+                currentAI.status = 'finished';
+                this.remainingAIPlayers--;
+                this.checkGameEnd();
+                return;
+              }
+              
+              // 检查游戏是否结束
+              this.checkGameEnd();
+              
+              // 切换到下一个回合
+              this.nextTurn();
+            } else {
+              // 如果连扣牌都找不到，直接过牌
+              console.log('No penalty card found, passing');
+              uni.showToast({
+                title: `${currentAI.name} 选择过牌`,
+                icon: 'none',
+                duration: 2000
+              });
+              
+              // 切换到下一个回合
+              this.nextTurn();
             }
           }
         }
         
-        // 检查AI是否出完牌
-        if (currentAI.handCards.length === 0) {
-          currentAI.status = 'finished';
-          this.remainingAIPlayers--;
-          this.checkGameEnd();
-          return;
-        }
-        
-        // 检查游戏是否结束
-        this.checkGameEnd();
-        
-        // 切换到下一个AI或玩家回合
-        this.nextTurn();
-        
-      }, 1500);
+      }, 500); // 减少思考时间到500ms
     },
     
     // 获取当前应该出牌的AI索引
     getCurrentAIIndex() {
+      console.log('getCurrentAIIndex called, currentPlayer:', this.currentPlayer);
+      
       // 如果当前玩家是AI，直接返回对应的索引
       if (this.currentPlayer && this.currentPlayer.startsWith('ai')) {
         const aiNumber = parseInt(this.currentPlayer.replace('ai', ''));
@@ -805,6 +930,7 @@ export default {
         
         // 检查该AI是否还在游戏中
         if (index >= 0 && index < this.aiPlayers.length && this.aiPlayers[index].status === 'playing') {
+          console.log('Found AI at index:', index);
           return index;
         }
       }
@@ -812,40 +938,62 @@ export default {
       // 如果当前玩家不是AI或AI不在游戏中，找到第一个活跃的AI
       for (let i = 0; i < this.aiPlayers.length; i++) {
         if (this.aiPlayers[i].status === 'playing') {
+          console.log('Found first active AI at index:', i);
           return i;
         }
       }
       
+      console.log('No active AI found');
       return -1; // 没有活跃的AI
     },
     
     // 切换到下一个回合
     nextTurn() {
+      console.log('nextTurn called, currentPlayer:', this.currentPlayer);
+      
+      // 检查游戏是否已经结束
+      if (this.gameStatus === 'ended' || this.gameStatus === 'finished') {
+        console.log('Game already ended, stopping turn switching');
+        return;
+      }
+      
       // 更新当前玩家
       this.currentPlayer = this.getNextPlayer();
+      console.log('Next player:', this.currentPlayer);
       
+      // 检查新玩家是否还在游戏中
       if (this.currentPlayer === 'player') {
-        // 切换到玩家回合
-        this.isPlayerTurn = true;
-        this.isAIPlayerTurn = false;
-        
-        // 更新Pass按钮状态
-        this.updatePassButton();
+        if (this.scores.player.status === 'playing') {
+          // 切换到玩家回合
+          this.isPlayerTurn = true;
+          this.isAIPlayerTurn = false;
+          console.log('Switched to player turn');
+          
+          // 更新Pass按钮状态
+          this.updatePassButton();
+        } else {
+          // 玩家已经结束，继续下一个回合
+          console.log('Player already finished, continuing to next turn');
+          this.nextTurn();
+        }
       } else {
-        // 切换到AI回合
-        this.isPlayerTurn = false;
-        this.isAIPlayerTurn = true;
-        
-        // 设置当前AI玩家名称
+        // 检查AI是否还在游戏中
         const aiIndex = this.getCurrentAIIndex();
         if (aiIndex !== -1) {
-          this.currentPlayer = `ai${aiIndex + 1}`;
+          // 切换到AI回合
+          this.isPlayerTurn = false;
+          this.isAIPlayerTurn = true;
+          console.log('Switched to AI turn, starting AI play');
+          
+          // 开始AI出牌
+          setTimeout(() => {
+            this.aiPlay();
+          }, 300);
+        } else {
+          // 没有活跃的AI，检查游戏结束
+          console.log('No active AI found, checking game end');
+          this.checkGameEnd();
         }
-        
-        // 开始AI出牌
-        setTimeout(() => {
-          this.aiPlay();
-        }, 1000);
       }
     },
     
@@ -875,6 +1023,7 @@ export default {
       // 只有当只剩下一个玩家或没有玩家在游戏中时才结束游戏
       if (playingPlayers.length <= 1) {
         const lastPlayer = playingPlayers.length === 1 ? playingPlayers[0] : null;
+        this.gameStatus = 'finished'; // 先设置游戏状态为结束
         this.endGame(lastPlayer);
       }
     },
@@ -1009,7 +1158,13 @@ export default {
     // 获取下一个玩家
     getNextPlayer() {
       const players = ['player', 'ai1', 'ai2', 'ai3'];
-      const currentIndex = players.indexOf(this.currentPlayer);
+      let currentIndex = players.indexOf(this.currentPlayer);
+      
+      // 如果当前玩家不在列表中，从第一个玩家开始
+      if (currentIndex === -1) {
+        currentIndex = 0;
+      }
+      
       const nextIndex = (currentIndex + 1) % players.length;
       return players[nextIndex];
     },
@@ -1027,13 +1182,13 @@ export default {
 </script>
 
 <style>
-/* AI对战特有样式 - 科技感设计 */
+/* AI对战特有样式 - 橙白主题设计 */
 .ai-container {
   padding: 16px;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  background: linear-gradient(135deg, #fff8f0 0%, #fff5eb 50%, #fff0e0 100%);
   min-height: 100vh;
-  font-family: 'Courier New', monospace;
-  color: #ffffff;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #333333;
 }
 
 /* AI对战模式标识 */
@@ -1041,10 +1196,10 @@ export default {
   text-align: center;
   margin: 20px 0 30px 0;
   padding: 20px;
-  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 255, 255, 0.2) 100%);
-  border: 2px solid #00ffff;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 152, 0, 0.2) 100%);
+  border: 2px solid #ff9800;
   border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -1056,7 +1211,7 @@ export default {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+  background: linear-gradient(45deg, transparent, rgba(255, 152, 0, 0.1), transparent);
   animation: shine 3s infinite;
 }
 
@@ -1079,15 +1234,15 @@ export default {
 .ai-text {
   font-size: 24px;
   font-weight: bold;
-  color: #00ffff;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  color: #ff9800;
+  text-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
   display: block;
   margin-bottom: 5px;
 }
 
 .ai-subtitle {
   font-size: 14px;
-  color: #88ffff;
+  color: #ffb74d;
   opacity: 0.8;
 }
 
@@ -1095,18 +1250,19 @@ export default {
 .ai-players-section {
   margin: 20px 0;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 152, 0, 0.3);
   border-radius: 12px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .ai-players-section h3 {
   margin-bottom: 16px;
-  color: #00ffff;
+  color: #ff9800;
   font-size: 18px;
   text-align: center;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 152, 0, 0.3);
   padding-bottom: 10px;
 }
 
@@ -1120,16 +1276,18 @@ export default {
   display: flex;
   align-items: center;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
-  border: 1px solid rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(255, 152, 0, 0.2);
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .ai-player:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(0, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 152, 0, 0.5);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .ai-avatar {
@@ -1146,21 +1304,21 @@ export default {
 
 .ai-name {
   font-weight: bold;
-  color: #ffffff;
+  color: #333333;
 }
 
 .ai-cards {
   font-size: 12px;
-  color: #88ffff;
+  color: #ff9800;
 }
 
 .ai-status {
   font-size: 11px;
-  color: #ff6b6b;
+  color: #f44336;
 }
 
 .ai-status.ai-thinking {
-  color: #00ffff;
+  color: #ff9800;
   animation: pulse 1.5s infinite;
 }
 
@@ -1170,8 +1328,8 @@ export default {
 }
 
 .ai-level {
-  background: rgba(0, 255, 255, 0.2);
-  color: #00ffff;
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
@@ -1188,9 +1346,9 @@ export default {
 }
 
 .control-btn {
-  background: rgba(0, 255, 255, 0.1);
-  color: #00ffff;
-  border: 2px solid #00ffff;
+  background: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+  border: 2px solid #ff9800;
   padding: 12px 20px;
   border-radius: 8px;
   font-size: 14px;
@@ -1204,19 +1362,19 @@ export default {
 }
 
 .control-btn.primary {
-  background: rgba(0, 255, 255, 0.2);
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  background: rgba(255, 152, 0, 0.2);
+  box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
 }
 
 .control-btn.secondary {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #ffffff;
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #666666;
+  color: #666666;
 }
 
 .control-btn:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+  box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
 }
 
 .control-btn:disabled {
@@ -1236,9 +1394,10 @@ export default {
   padding: 16px;
   border-radius: 12px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 152, 0, 0.3);
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .turn-indicator {
@@ -1250,45 +1409,46 @@ export default {
 }
 
 .your-turn {
-  background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
-  color: #000000;
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
   animation: glow 2s infinite;
 }
 
 .ai-turn {
-  background: linear-gradient(135deg, #00ffff 0%, #0088ff 100%);
-  color: #000000;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.5);
   animation: glow 2s infinite;
 }
 
 .other-turn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.9);
+  color: #666666;
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5); }
-  50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8); }
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 152, 0, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(255, 152, 0, 0.8); }
 }
 
 /* 统计区域 */
 .stats-section {
   margin: 20px 0;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 152, 0, 0.3);
   border-radius: 12px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stats-section h3 {
   margin-bottom: 16px;
-  color: #00ffff;
+  color: #ff9800;
   font-size: 18px;
   text-align: center;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 152, 0, 0.3);
   padding-bottom: 10px;
 }
 
@@ -1301,15 +1461,16 @@ export default {
 .stat-item {
   text-align: center;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
-  border: 1px solid rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .stat-label {
   display: block;
   font-size: 12px;
-  color: #88ffff;
+  color: #ff9800;
   margin-bottom: 4px;
 }
 
@@ -1317,7 +1478,7 @@ export default {
   display: block;
   font-size: 18px;
   font-weight: bold;
-  color: #00ffff;
+  color: #ff9800;
 }
 
 /* AI思考动画 */
@@ -1326,15 +1487,16 @@ export default {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(255, 255, 255, 0.95);
   padding: 16px 24px;
   border-radius: 8px;
-  border: 1px solid #00ffff;
+  border: 1px solid #ff9800;
   display: flex;
   align-items: center;
   gap: 12px;
   backdrop-filter: blur(10px);
   z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .thinking-dots {
@@ -1345,7 +1507,7 @@ export default {
 .dot {
   width: 8px;
   height: 8px;
-  background: #00ffff;
+  background: #ff9800;
   border-radius: 50%;
   animation: bounce 1.4s infinite ease-in-out;
 }
@@ -1359,59 +1521,164 @@ export default {
 }
 
 .thinking-text {
-  color: #00ffff;
+  color: #ff9800;
   font-size: 14px;
 }
 
-/* 继承原有样式并适配暗色主题 */
+/* 继承原有样式并适配橙白主题 */
 .player-section, .cards-section, .piles-section {
   margin: 16px 0;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  border: 1px solid rgba(255, 152, 0, 0.3);
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .player-section h3, .cards-section h3, .piles-section h3 {
   margin-bottom: 12px;
-  color: #00ffff;
+  color: #ff9800;
   font-size: 18px;
   text-align: center;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 152, 0, 0.3);
   padding-bottom: 8px;
 }
 
-/* 卡牌样式适配暗色主题 */
+/* 卡牌样式适配橙白主题 */
 .card {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 152, 0, 0.3);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 54px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
 }
 
 .card.selected {
-  border: 3px solid #00ffff;
-  background: rgba(0, 255, 255, 0.1);
-  box-shadow: 0 6px 0 rgba(0, 255, 255, 0.3);
+  border: 3px solid #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  box-shadow: 0 6px 0 rgba(255, 152, 0, 0.3);
+}
+
+/* 扑克牌红黑配色 */
+.card-hearts .card-rank, .card-hearts .card-suit,
+.card-diamonds .card-rank, .card-diamonds .card-suit { color: #d32f2f; }
+.card-spades .card-rank, .card-spades .card-suit,
+.card-clubs .card-rank, .card-clubs .card-suit { color: #111; }
+
+/* 牌堆样式 - 四列分开布局 */
+.piles-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.pile-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pile-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pile {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 152, 0, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.pile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.pile-suit {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.pile-count {
+  font-size: 12px;
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.pile-cards {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 120px;
+}
+
+.pile-sequence {
+  position: relative;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 牌堆里的牌适配同样样式 */
+.pile-card.card { 
+  width: 40px; 
+  height: 56px; 
+  border-radius: 6px; 
+  position: absolute;
+  transition: all 0.3s ease;
+}
+
+.pile-player {
+  font-size: 10px;
+  color: #ff9800;
+  margin-top: 8px;
+  text-align: center;
+  opacity: 0.8;
 }
 
 /* 按钮样式适配 */
 .play-btn {
-  background: rgba(0, 255, 136, 0.2);
-  border-color: #00ff88;
-  color: #00ff88;
+  background: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+  color: #4caf50;
 }
 
 .clear-btn {
-  background: rgba(255, 107, 107, 0.2);
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  background: rgba(244, 67, 54, 0.2);
+  border-color: #f44336;
+  color: #f44336;
 }
 
 .pass-btn {
-  background: rgba(0, 255, 255, 0.2);
-  border-color: #00ffff;
-  color: #00ffff;
+  background: rgba(255, 152, 0, 0.2);
+  border-color: #ff9800;
+  color: #ff9800;
 }
 
 /* 返回按钮样式 */
@@ -1419,26 +1686,26 @@ export default {
   position: absolute;
   top: 20px;
   left: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  border: 2px solid #00ffff;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #ff9800;
   border-radius: 6px;
   padding: 8px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
   z-index: 10;
   backdrop-filter: blur(10px);
 }
 
 .back-button:active {
   transform: translateY(1px);
-  box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 5px rgba(255, 152, 0, 0.3);
 }
 
 .back-text {
   font-size: 14px;
   font-weight: bold;
-  color: #00ffff;
+  color: #ff9800;
 }
 
 /* 响应式设计 */

@@ -47,10 +47,8 @@ export default {
   methods: {
     // 与AI对战
     startAIGame() {
-      uni.showToast({
-        title: 'AI对战功能开发中',
-        icon: 'none',
-        duration: 2000
+      uni.navigateTo({
+        url: '/pages/ai-battle/ai-battle'
       });
     },
     
