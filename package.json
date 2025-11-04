@@ -14,12 +14,12 @@
   "dependencies": {
     "koa-websocket": "^7.0.0",
     "ws": "^8.18.3",
-    "@dcloudio/uni-app-plus": "^3.0.0-*",
-    "@dcloudio/uni-mp-weixin": "^3.0.0-*"
+    "@dcloudio/uni-app-plus": "^3.0.0",
+    "@dcloudio/uni-mp-weixin": "^3.0.0"
   },
   "devDependencies": {
-    "@dcloudio/uni-cli-shared": "^3.0.0-*",
-    "@dcloudio/vue-cli-plugin-uni": "^3.0.0-*",
+    "@dcloudio/uni-cli-shared": "^3.0.0",
+    "@dcloudio/vue-cli-plugin-uni": "^3.0.0",
     "@vue/cli-service": "^5.0.8",
     "cross-env": "^7.0.3",
     "vue": "^3.3.4",

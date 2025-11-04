@@ -2,7 +2,8 @@
   "pages": [
     "pages/menu/menu",
     "pages/home/home",
-    "pages/index/index"
+    "pages/index/index",
+    "pages/ai-battle/ai-battle"
   ],
   "window": {
     "navigationBarTextStyle": "black",

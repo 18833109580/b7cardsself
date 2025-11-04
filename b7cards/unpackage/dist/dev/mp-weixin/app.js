@@ -5,6 +5,7 @@ if (!Math) {
   "./pages/menu/menu.js";
   "./pages/home/home.js";
   "./pages/index/index.js";
+  "./pages/ai-battle/ai-battle.js";
 }
 const _sfc_main = {
   onLaunch: function() {

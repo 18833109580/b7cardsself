@@ -1,0 +1,412 @@
+
+/* AI对战特有样式 - 科技感设计 */
+.ai-container {
+  padding: 16px;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  min-height: 100vh;
+  font-family: 'Courier New', monospace;
+  color: #ffffff;
+}
+
+/* AI对战模式标识 */
+.ai-mode-banner {
+  text-align: center;
+  margin: 20px 0 30px 0;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 255, 255, 0.2) 100%);
+  border: 2px solid #00ffff;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+.ai-mode-banner::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+  animation: shine 3s infinite;
+}
+@keyframes shine {
+0% { transform: translateX(-100%) translateY(-100%) rotate(45deg);
+}
+100% { transform: translateX(100%) translateY(100%) rotate(45deg);
+}
+}
+.ai-icon {
+  font-size: 48px;
+  margin-bottom: 10px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+0%, 100% { transform: translateY(0px);
+}
+50% { transform: translateY(-10px);
+}
+}
+.ai-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #00ffff;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  display: block;
+  margin-bottom: 5px;
+}
+.ai-subtitle {
+  font-size: 14px;
+  color: #88ffff;
+  opacity: 0.8;
+}
+
+/* AI玩家状态区域 */
+.ai-players-section {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 12px;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}
+.ai-players-section h3 {
+  margin-bottom: 16px;
+  color: #00ffff;
+  font-size: 18px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  padding-bottom: 10px;
+}
+.ai-players-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ai-player {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+.ai-player:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(0, 255, 255, 0.5);
+  transform: translateY(-2px);
+}
+.ai-avatar {
+  font-size: 24px;
+  margin-right: 12px;
+}
+.ai-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ai-name {
+  font-weight: bold;
+  color: #ffffff;
+}
+.ai-cards {
+  font-size: 12px;
+  color: #88ffff;
+}
+.ai-status {
+  font-size: 11px;
+  color: #ff6b6b;
+}
+.ai-status.ai-thinking {
+  color: #00ffff;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+0%, 100% { opacity: 1;
+}
+50% { opacity: 0.5;
+}
+}
+.ai-level {
+  background: rgba(0, 255, 255, 0.2);
+  color: #00ffff;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* 控制按钮样式 */
+.control-section {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+.control-btn {
+  background: rgba(0, 255, 255, 0.1);
+  color: #00ffff;
+  border: 2px solid #00ffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}
+.control-btn.primary {
+  background: rgba(0, 255, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+.control-btn.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+.control-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+}
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.btn-icon {
+  font-size: 16px;
+}
+
+/* 出牌权显示样式 */
+.turn-section {
+  margin: 20px 0;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}
+.turn-indicator {
+  padding: 16px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+.your-turn {
+  background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+  color: #000000;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  animation: glow 2s infinite;
+}
+.ai-turn {
+  background: linear-gradient(135deg, #00ffff 0%, #0088ff 100%);
+  color: #000000;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  animation: glow 2s infinite;
+}
+.other-turn {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+@keyframes glow {
+0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+}
+}
+
+/* 统计区域 */
+.stats-section {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  border-radius: 12px;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}
+.stats-section h3 {
+  margin-bottom: 16px;
+  color: #00ffff;
+  font-size: 18px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  padding-bottom: 10px;
+}
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.stat-item {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+.stat-label {
+  display: block;
+  font-size: 12px;
+  color: #88ffff;
+  margin-bottom: 4px;
+}
+.stat-value {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  color: #00ffff;
+}
+
+/* AI思考动画 */
+.ai-thinking-animation {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 16px 24px;
+  border-radius: 8px;
+  border: 1px solid #00ffff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+  z-index: 1000;
+}
+.thinking-dots {
+  display: flex;
+  gap: 4px;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  background: #00ffff;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out;
+}
+.dot:nth-child(1) { animation-delay: -0.32s;
+}
+.dot:nth-child(2) { animation-delay: -0.16s;
+}
+@keyframes bounce {
+0%, 80%, 100% { transform: scale(0);
+}
+40% { transform: scale(1);
+}
+}
+.thinking-text {
+  color: #00ffff;
+  font-size: 14px;
+}
+
+/* 继承原有样式并适配暗色主题 */
+.player-section, .cards-section, .piles-section {
+  margin: 16px 0;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}
+.player-section h3, .cards-section h3, .piles-section h3 {
+  margin-bottom: 12px;
+  color: #00ffff;
+  font-size: 18px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  padding-bottom: 8px;
+}
+
+/* 卡牌样式适配暗色主题 */
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+}
+.card.selected {
+  border: 3px solid #00ffff;
+  background: rgba(0, 255, 255, 0.1);
+  box-shadow: 0 6px 0 rgba(0, 255, 255, 0.3);
+}
+
+/* 按钮样式适配 */
+.play-btn {
+  background: rgba(0, 255, 136, 0.2);
+  border-color: #00ff88;
+  color: #00ff88;
+}
+.clear-btn {
+  background: rgba(255, 107, 107, 0.2);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+.pass-btn {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: #00ffff;
+  color: #00ffff;
+}
+
+/* 返回按钮样式 */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #00ffff;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  z-index: 10;
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
+}
+.back-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+}
+.back-text {
+  font-size: 14px;
+  font-weight: bold;
+  color: #00ffff;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+.ai-container {
+    padding: 12px;
+}
+.stats-container {
+    grid-template-columns: 1fr;
+}
+.control-section {
+    flex-direction: column;
+    align-items: center;
+}
+.control-btn {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+}
+.back-button {
+    top: 10px;
+    left: 10px;
+    padding: 6px 12px;
+}
+}

@@ -21,6 +21,12 @@
 				"navigationBarTitleText": "调试"
 			}
 			
+		},
+		{
+			"path": "pages/ai-battle/ai-battle",
+			"style": {
+				"navigationBarTitleText": "AI对战"
+			}
 		}
 	],
 	"tabBar": {
