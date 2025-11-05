@@ -1,11 +1,11 @@
 
-/* AI对战特有样式 - 科技感设计 */
+/* AI对战特有样式 - 橙白主题设计 */
 .ai-container {
   padding: 16px;
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+  background: linear-gradient(135deg, #fff8f0 0%, #fff5eb 50%, #fff0e0 100%);
   min-height: 100vh;
-  font-family: 'Courier New', monospace;
-  color: #ffffff;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #333333;
 }
 
 /* AI对战模式标识 */
@@ -13,10 +13,10 @@
   text-align: center;
   margin: 20px 0 30px 0;
   padding: 20px;
-  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 255, 255, 0.2) 100%);
-  border: 2px solid #00ffff;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 152, 0, 0.2) 100%);
+  border: 2px solid #ff9800;
   border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
   position: relative;
   overflow: hidden;
 }
@@ -27,7 +27,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+  background: linear-gradient(45deg, transparent, rgba(255, 152, 0, 0.1), transparent);
   animation: shine 3s infinite;
 }
 @keyframes shine {
@@ -50,14 +50,14 @@
 .ai-text {
   font-size: 24px;
   font-weight: bold;
-  color: #00ffff;
-  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  color: #ff9800;
+  text-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
   display: block;
   margin-bottom: 5px;
 }
 .ai-subtitle {
   font-size: 14px;
-  color: #88ffff;
+  color: #ffb74d;
   opacity: 0.8;
 }
 
@@ -65,18 +65,19 @@
 .ai-players-section {
   margin: 20px 0;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 152, 0, 0.3);
   border-radius: 12px;
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .ai-players-section h3 {
   margin-bottom: 16px;
-  color: #00ffff;
+  color: #ff9800;
   font-size: 18px;
   text-align: center;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 152, 0, 0.3);
   padding-bottom: 10px;
 }
 .ai-players-container {
@@ -88,15 +89,17 @@
   display: flex;
   align-items: center;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
-  border: 1px solid rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(255, 152, 0, 0.2);
   transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 .ai-player:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(0, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 152, 0, 0.5);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .ai-avatar {
   font-size: 24px;
@@ -110,18 +113,18 @@
 }
 .ai-name {
   font-weight: bold;
-  color: #ffffff;
+  color: #333333;
 }
 .ai-cards {
   font-size: 12px;
-  color: #88ffff;
+  color: #ff9800;
 }
 .ai-status {
   font-size: 11px;
-  color: #ff6b6b;
+  color: #f44336;
 }
 .ai-status.ai-thinking {
-  color: #00ffff;
+  color: #ff9800;
   animation: pulse 1.5s infinite;
 }
 @keyframes pulse {
@@ -131,8 +134,8 @@
 }
 }
 .ai-level {
-  background: rgba(0, 255, 255, 0.2);
-  color: #00ffff;
+  background: rgba(255, 152, 0, 0.2);
+  color: #ff9800;
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
@@ -148,9 +151,9 @@
   flex-wrap: wrap;
 }
 .control-btn {
-  background: rgba(0, 255, 255, 0.1);
-  color: #00ffff;
-  border: 2px solid #00ffff;
+  background: rgba(255, 152, 0, 0.1);
+  color: #ff9800;
+  border: 2px solid #ff9800;
   padding: 12px 20px;
   border-radius: 8px;
   font-size: 14px;
@@ -164,17 +167,17 @@
           backdrop-filter: blur(10px);
 }
 .control-btn.primary {
-  background: rgba(0, 255, 255, 0.2);
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+  background: rgba(255, 152, 0, 0.2);
+  box-shadow: 0 0 15px rgba(255, 152, 0, 0.3);
 }
 .control-btn.secondary {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #ffffff;
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #666666;
+  color: #666666;
 }
 .control-btn:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+  box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
 }
 .control-btn:disabled {
   opacity: 0.5;
@@ -192,10 +195,11 @@
   padding: 16px;
   border-radius: 12px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 152, 0, 0.3);
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .turn-indicator {
   padding: 16px 24px;
@@ -205,25 +209,25 @@
   transition: all 0.3s ease;
 }
 .your-turn {
-  background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
-  color: #000000;
-  box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
   animation: glow 2s infinite;
 }
 .ai-turn {
-  background: linear-gradient(135deg, #00ffff 0%, #0088ff 100%);
-  color: #000000;
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(255, 152, 0, 0.5);
   animation: glow 2s infinite;
 }
 .other-turn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.9);
+  color: #666666;
 }
 @keyframes glow {
-0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+0%, 100% { box-shadow: 0 0 20px rgba(255, 152, 0, 0.5);
 }
-50% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+50% { box-shadow: 0 0 30px rgba(255, 152, 0, 0.8);
 }
 }
 
@@ -231,18 +235,19 @@
 .stats-section {
   margin: 20px 0;
   padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 152, 0, 0.3);
   border-radius: 12px;
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .stats-section h3 {
   margin-bottom: 16px;
-  color: #00ffff;
+  color: #ff9800;
   font-size: 18px;
   text-align: center;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 152, 0, 0.3);
   padding-bottom: 10px;
 }
 .stats-container {
@@ -253,21 +258,22 @@
 .stat-item {
   text-align: center;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 8px;
-  border: 1px solid rgba(0, 255, 255, 0.2);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 .stat-label {
   display: block;
   font-size: 12px;
-  color: #88ffff;
+  color: #ff9800;
   margin-bottom: 4px;
 }
 .stat-value {
   display: block;
   font-size: 18px;
   font-weight: bold;
-  color: #00ffff;
+  color: #ff9800;
 }
 
 /* AI思考动画 */
@@ -276,16 +282,17 @@
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(255, 255, 255, 0.95);
   padding: 16px 24px;
   border-radius: 8px;
-  border: 1px solid #00ffff;
+  border: 1px solid #ff9800;
   display: flex;
   align-items: center;
   gap: 12px;
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
   z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 .thinking-dots {
   display: flex;
@@ -294,7 +301,7 @@
 .dot {
   width: 8px;
   height: 8px;
-  background: #00ffff;
+  background: #ff9800;
   border-radius: 50%;
   animation: bounce 1.4s infinite ease-in-out;
 }
@@ -309,56 +316,245 @@
 }
 }
 .thinking-text {
-  color: #00ffff;
+  color: #ff9800;
   font-size: 14px;
 }
 
-/* 继承原有样式并适配暗色主题 */
+/* 继承原有样式并适配橙白主题 */
 .player-section, .cards-section, .piles-section {
   margin: 16px 0;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 8px;
-  border: 1px solid rgba(0, 255, 255, 0.3);
+  border: 1px solid rgba(255, 152, 0, 0.3);
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .player-section h3, .cards-section h3, .piles-section h3 {
   margin-bottom: 12px;
-  color: #00ffff;
+  color: #ff9800;
   font-size: 18px;
   text-align: center;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 152, 0, 0.3);
   padding-bottom: 8px;
 }
 
-/* 卡牌样式适配暗色主题 */
+/* 卡牌样式适配橙白主题 */
 .card {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 152, 0, 0.3);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  width: 54px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
 }
 .card.selected {
-  border: 3px solid #00ffff;
-  background: rgba(0, 255, 255, 0.1);
-  box-shadow: 0 6px 0 rgba(0, 255, 255, 0.3);
+  border: 3px solid #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  box-shadow: 0 6px 0 rgba(255, 152, 0, 0.3);
+}
+
+/* 扑克牌红黑配色 */
+.card-hearts .card-rank, .card-hearts .card-suit,
+.card-diamonds .card-rank, .card-diamonds .card-suit { color: #d32f2f;
+}
+.card-spades .card-rank, .card-spades .card-suit,
+.card-clubs .card-rank, .card-clubs .card-suit { color: #111;
+}
+
+/* 手牌样式 - 按花色分类横向排列 */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.suit-section {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+}
+.suit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+}
+.suit-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff9800;
+}
+.suit-count {
+  font-size: 12px;
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.suit-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.card-item {
+  display: inline-block;
+}
+
+/* 手牌样式 - 按花色分类横向排列 */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.suit-section {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+}
+.suit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+}
+.suit-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff9800;
+}
+.suit-count {
+  font-size: 12px;
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.suit-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.card-item {
+  display: inline-block;
+}
+
+/* 牌堆样式 - 四列分开布局 */
+.piles-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+.pile-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pile-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.pile {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 152, 0, 0.3);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.pile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+}
+.pile-suit {
+  font-size: 20px;
+  font-weight: bold;
+}
+.pile-count {
+  font-size: 12px;
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.pile-cards {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 200px; /* 增加最小高度以容纳更多牌 */
+}
+.pile-sequence {
+  position: relative;
+  min-height: 200px; /* 增加最小高度 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 牌堆里的牌适配同样样式 */
+.pile-card.card { 
+  width: 40px; 
+  height: 56px; 
+  border-radius: 6px; 
+  position: relative; /* 改为相对定位，避免重叠问题 */
+  margin-top: -30px; /* 调整堆叠间距 */
+  transition: all 0.3s ease;
+  z-index: 1; /* 确保牌有正确的层叠顺序 */
+}
+
+/* 第一张牌不需要负边距 */
+.pile-card.card:first-child {
+  margin-top: 0;
+}
+.pile-player {
+  font-size: 10px;
+  color: #ff9800;
+  margin-top: 8px;
+  text-align: center;
+  opacity: 0.8;
 }
 
 /* 按钮样式适配 */
 .play-btn {
-  background: rgba(0, 255, 136, 0.2);
-  border-color: #00ff88;
-  color: #00ff88;
+  background: rgba(76, 175, 80, 0.2);
+  border-color: #4caf50;
+  color: #4caf50;
 }
 .clear-btn {
-  background: rgba(255, 107, 107, 0.2);
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  background: rgba(244, 67, 54, 0.2);
+  border-color: #f44336;
+  color: #f44336;
 }
 .pass-btn {
-  background: rgba(0, 255, 255, 0.2);
-  border-color: #00ffff;
-  color: #00ffff;
+  background: rgba(255, 152, 0, 0.2);
+  border-color: #ff9800;
+  color: #ff9800;
 }
 
 /* 返回按钮样式 */
@@ -366,25 +562,25 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  border: 2px solid #00ffff;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #ff9800;
   border-radius: 6px;
   padding: 8px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
   z-index: 10;
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
 }
 .back-button:active {
   transform: translateY(1px);
-  box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 5px rgba(255, 152, 0, 0.3);
 }
 .back-text {
   font-size: 14px;
   font-weight: bold;
-  color: #00ffff;
+  color: #ff9800;
 }
 
 /* 响应式设计 */

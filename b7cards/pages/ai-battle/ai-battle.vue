@@ -76,7 +76,6 @@
                     v-for="(entry, index) in getPileCardsSorted(suit)" 
                     :key="index"
                     :class="['pile-card', 'card', 'card-' + entry.card.suit, entry.card.rank === '7' ? 'seven-card' : '']"
-                    :style="{ marginTop: index > 0 ? '-40px' : '0' }"
                   >
                     <text class="card-rank">{{ entry.card.rank }}</text>
                     <text class="card-suit">{{ getSuitSymbol(entry.card.suit) }}</text>
@@ -134,16 +133,85 @@
         </view>
       </view>
       
-      <!-- 所有手牌 -->
+      <!-- 所有手牌 - 按花色分类横向排列 -->
       <view class="cards-container">
-        <view v-for="(card, index) in playerCards" :key="index" class="card-item">
-          <view 
-            :class="['card', 'card-' + card.suit, selectedCard && selectedCard.id === card.id ? 'selected' : '']"
-            @click="selectCard(card)"
-          >
-            <text class="card-rank">{{ card.rank }}</text>
-            <text class="card-suit">{{ getSuitSymbol(card.suit) }}</text>
-            <text v-if="selectedCard && selectedCard.id === card.id" class="selected-mark">✓</text>
+        <!-- 黑桃花色 -->
+        <view class="suit-section" v-if="getCardsBySuit('spades').length > 0">
+          <view class="suit-header">
+            <text class="suit-label">♠ 黑桃</text>
+            <text class="suit-count">{{ getCardsBySuit('spades').length }}张</text>
+          </view>
+          <view class="suit-cards">
+            <view v-for="card in getCardsBySuit('spades')" :key="card.id" class="card-item">
+              <view 
+                :class="['card', 'card-' + card.suit, selectedCard && selectedCard.id === card.id ? 'selected' : '']"
+                @click="selectCard(card)"
+              >
+                <text class="card-rank">{{ card.rank }}</text>
+                <text class="card-suit">{{ getSuitSymbol(card.suit) }}</text>
+                <text v-if="selectedCard && selectedCard.id === card.id" class="selected-mark">✓</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 红桃花色 -->
+        <view class="suit-section" v-if="getCardsBySuit('hearts').length > 0">
+          <view class="suit-header">
+            <text class="suit-label">♥ 红桃</text>
+            <text class="suit-count">{{ getCardsBySuit('hearts').length }}张</text>
+          </view>
+          <view class="suit-cards">
+            <view v-for="card in getCardsBySuit('hearts')" :key="card.id" class="card-item">
+              <view 
+                :class="['card', 'card-' + card.suit, selectedCard && selectedCard.id === card.id ? 'selected' : '']"
+                @click="selectCard(card)"
+              >
+                <text class="card-rank">{{ card.rank }}</text>
+                <text class="card-suit">{{ getSuitSymbol(card.suit) }}</text>
+                <text v-if="selectedCard && selectedCard.id === card.id" class="selected-mark">✓</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 梅花花色 -->
+        <view class="suit-section" v-if="getCardsBySuit('clubs').length > 0">
+          <view class="suit-header">
+            <text class="suit-label">♣ 梅花</text>
+            <text class="suit-count">{{ getCardsBySuit('clubs').length }}张</text>
+          </view>
+          <view class="suit-cards">
+            <view v-for="card in getCardsBySuit('clubs')" :key="card.id" class="card-item">
+              <view 
+                :class="['card', 'card-' + card.suit, selectedCard && selectedCard.id === card.id ? 'selected' : '']"
+                @click="selectCard(card)"
+              >
+                <text class="card-rank">{{ card.rank }}</text>
+                <text class="card-suit">{{ getSuitSymbol(card.suit) }}</text>
+                <text v-if="selectedCard && selectedCard.id === card.id" class="selected-mark">✓</text>
+              </view>
+            </view>
+          </view>
+        </view>
+        
+        <!-- 方片花色 -->
+        <view class="suit-section" v-if="getCardsBySuit('diamonds').length > 0">
+          <view class="suit-header">
+            <text class="suit-label">♦ 方片</text>
+            <text class="suit-count">{{ getCardsBySuit('diamonds').length }}张</text>
+          </view>
+          <view class="suit-cards">
+            <view v-for="card in getCardsBySuit('diamonds')" :key="card.id" class="card-item">
+              <view 
+                :class="['card', 'card-' + card.suit, selectedCard && selectedCard.id === card.id ? 'selected' : '']"
+                @click="selectCard(card)"
+              >
+                <text class="card-rank">{{ card.rank }}</text>
+                <text class="card-suit">{{ getSuitSymbol(card.suit) }}</text>
+                <text v-if="selectedCard && selectedCard.id === card.id" class="selected-mark">✓</text>
+              </view>
+            </view>
           </view>
         </view>
       </view>
@@ -413,6 +481,22 @@ export default {
     // 获取活牌列表
     getActiveCards(cards) {
       return cards.filter(card => this.isActiveCard(card));
+    },
+    
+    // 按花色获取手牌
+    getCardsBySuit(suit) {
+      return this.playerCards.filter(card => card.suit === suit).sort((a, b) => {
+        const rankOrder = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        return rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+      });
+    },
+    
+    // 按花色获取手牌
+    getCardsBySuit(suit) {
+      return this.playerCards.filter(card => card.suit === suit).sort((a, b) => {
+        const rankOrder = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        return rankOrder.indexOf(a.rank) - rankOrder.indexOf(b.rank);
+      });
     },
     
     // 开始游戏
@@ -1572,6 +1656,102 @@ export default {
 .card-spades .card-rank, .card-spades .card-suit,
 .card-clubs .card-rank, .card-clubs .card-suit { color: #111; }
 
+/* 手牌样式 - 按花色分类横向排列 */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.suit-section {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.suit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.suit-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff9800;
+}
+
+.suit-count {
+  font-size: 12px;
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.suit-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.card-item {
+  display: inline-block;
+}
+
+/* 手牌样式 - 按花色分类横向排列 */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.suit-section {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.suit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+}
+
+.suit-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff9800;
+}
+
+.suit-count {
+  font-size: 12px;
+  color: #ff9800;
+  background: rgba(255, 152, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.suit-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.card-item {
+  display: inline-block;
+}
+
 /* 牌堆样式 - 四列分开布局 */
 .piles-container {
   display: grid;
@@ -1634,12 +1814,12 @@ export default {
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  min-height: 120px;
+  min-height: 200px; /* 增加最小高度以容纳更多牌 */
 }
 
 .pile-sequence {
   position: relative;
-  height: 120px;
+  min-height: 200px; /* 增加最小高度 */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1650,8 +1830,15 @@ export default {
   width: 40px; 
   height: 56px; 
   border-radius: 6px; 
-  position: absolute;
+  position: relative; /* 改为相对定位，避免重叠问题 */
+  margin-top: -30px; /* 调整堆叠间距 */
   transition: all 0.3s ease;
+  z-index: 1; /* 确保牌有正确的层叠顺序 */
+}
+
+/* 第一张牌不需要负边距 */
+.pile-card.card:first-child {
+  margin-top: 0;
 }
 
 .pile-player {
